@@ -1,8 +1,22 @@
-require('dotenv').config();
-const app = require('./app');
+import express from 'express';
+import dotenv from 'dotenv';
+import { pool } from './config/db.js';
 
-const PORT = process.env.PORT || 3000;
+dotenv.config();
 
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+const app = express();
+app.use(express.json());
+
+app.get('/test-db', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json(result.rows[0]);
+  } catch (error) {
+  console.error('DB ERROR:', error.message);
+  res.status(500).json({ error: error.message });
+}
+});
+
+app.listen(3000, () => {
+  console.log('Servidor corriendo en puerto 3000');
 });
